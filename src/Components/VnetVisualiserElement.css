@@ -1,0 +1,19 @@
+svg rect.subnet {
+  fill: blue;
+}
+
+svg rect.subnet:hover {
+  stroke: pink;
+  stroke-width: 2px;
+}
+
+svg rect.gap:hover {
+  stroke: yellow;
+  stroke-width: 2px;
+}
+
+svg text {
+  fill: white;
+  transform: rotate(90);
+  font-size: 8px;
+}
