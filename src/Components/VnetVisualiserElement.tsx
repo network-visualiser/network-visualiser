@@ -28,7 +28,6 @@ export default class VnetVisualiserElement extends React.Component<Props, State>
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any): void {
-    console.log('componentDidUpdate');
     if (this.props.vnet.name !== prevProps.vnet.name) {
       this.calculateGaps();
       this.setState({ currentSubnet: undefined });
@@ -65,7 +64,6 @@ export default class VnetVisualiserElement extends React.Component<Props, State>
 
     const getOffset = (vnet: Vnet, subnet: Subnet) => {
       const offset = subnet.network.startIP.numeric - vnet.network.startIP.numeric;
-      console.log(offset, vnet.network.availableIPs, subnet.network.availableIPs);
       const percentage = offset / vnet.network.availableIPs * 100;
       return percentage + '%';
     }
@@ -99,8 +97,8 @@ export default class VnetVisualiserElement extends React.Component<Props, State>
               onClick={() => this.setState({ currentSubnet: s })}
               width="100%"
               height="100%"
-              opacity={.5}
-              className="subnet"
+              opacity={.7}
+              className={`subnet ${currentSubnet === s ? 'selected' : ''}`}
             />
             {/* <circle
               cx="50%"
@@ -138,7 +136,7 @@ export default class VnetVisualiserElement extends React.Component<Props, State>
               height="25%"
               y={(32 - s.network.maskbits) * 10}
               opacity={.7}
-              className="gap"
+              className={`gap ${currentSubnet === s ? 'selected' : ''}`}
             />
             {/* <circle
               cx="50%"
@@ -159,7 +157,7 @@ export default class VnetVisualiserElement extends React.Component<Props, State>
           </svg>
         ))}
       </svg >
-      {currentSubnet && <SubnetElement className="mt-3" vnet={vnet} subnet={currentSubnet} />}
+      {currentSubnet && <SubnetElement onClose={() => this.setState({ currentSubnet: undefined })} className="mt-3" vnet={vnet} subnet={currentSubnet} />}
     </div >
   }
 }

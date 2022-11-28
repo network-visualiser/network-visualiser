@@ -2,6 +2,10 @@ svg rect.subnet {
   fill: blue;
 }
 
+svg rect.selected {
+  fill: rgb(255, 132, 0);
+}
+
 svg rect.subnet:hover {
   stroke: pink;
   stroke-width: 2px;
