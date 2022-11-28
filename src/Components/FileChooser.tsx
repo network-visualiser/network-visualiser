@@ -4,13 +4,14 @@ import TerraformVariableFileParser from "./TerraformVariableParser";
 import { Button } from 'react-bootstrap'
 
 interface FileChooserProps  {
-  varsReceived: (vars: any) => void;
+  varsReceived: (vars: any[]) => void;
 }
 
 export default class FileChooser extends React.Component<FileChooserProps> {
   async openFile() {
     console.log('opening file')
     const filePickerOptions = {
+      multiple: true,
       types: [
         {
           description: 'Terraform TFVar files',
@@ -21,13 +22,22 @@ export default class FileChooser extends React.Component<FileChooserProps> {
       ],
     }
 
-    const [fileHandle] = await window.showOpenFilePicker(filePickerOptions)
+    const fileHandles = await window.showOpenFilePicker(filePickerOptions)
 
-    const file = await fileHandle.getFile();
-    const contents = await file.text();
+    console.log(fileHandles)
 
-    var tfvar = new TerraformVariableFileParser().Parse(contents);
-    this.props.varsReceived(tfvar);
+    let result = []
+
+    for (const fh of fileHandles) {
+      const file = await fh.getFile();
+      const contents = await file.text();
+  
+      var tfvar = new TerraformVariableFileParser().Parse(contents);
+      tfvar.fileName = fh.name;
+      result.push(tfvar);
+    }
+
+    this.props.varsReceived(result);
   }
 
 

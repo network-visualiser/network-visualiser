@@ -4,6 +4,7 @@ export default class TerraformVariableFileParser {
       .split(/[\r\n]+/g)
       .map((line) => line.trim())
       .map(line => line.replace(/#.*$/, ''))
+      .map(line => line.replace(/,\s*$/, ''))
       .filter(line => line[0] !== '#');
 
     var vars: any = {}
