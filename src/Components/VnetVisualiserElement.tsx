@@ -123,7 +123,7 @@ export default class VnetVisualiserElement extends React.Component<Props, State>
           <svg
             key={s.network.address.string + i}
             x={getOffset(vnet, s)}
-            dy="20"
+            y={(28 - s.network.maskbits) * (100 / 6) + '%'}
             width={getWidth(vnet, s)}
             height="100%"
             >
@@ -133,26 +133,27 @@ export default class VnetVisualiserElement extends React.Component<Props, State>
               strokeWidth="1px"
               onClick={() => this.setState({ currentSubnet: s })}
               width="100%"
-              height="25%"
-              y={(32 - s.network.maskbits) * 10}
+              height={100 / 6 + '%'}
               opacity={.7}
               className={`gap ${currentSubnet === s ? 'selected' : ''}`}
             />
             {/* <circle
               cx="50%"
-              cy="50%"
+              cy="10%"
               r="2"
               fill="red"
             /> */}
             <text
-              x="0"
-              y="90%"
-              textAnchor="start"
+              width="100%"
+              x="50%"
+              y="20"
+              textAnchor="middle"
               alignmentBaseline="middle"
               dominantBaseline="central"
-              transform-origin="6 90%"
-              transform="rotate(-90)"
+              // transform-origin="6 90%"
+              // transform="rotate(-90)"
             >
+              { s.network.maskbits <27 && "/" + s.network.maskbits}
             </text>
           </svg>
         ))}
