@@ -1,4 +1,5 @@
 import React from "react";
+import { Button, ButtonGroup } from "react-bootstrap";
 import IPv4Network from "./IPv4Network";
 import Subnet from './Subnet'
 import SubnetElement from "./SubnetElement";
@@ -10,6 +11,7 @@ interface Props {
 }
 
 interface State {
+  vnet: Vnet
   gaps: Subnet[]
   currentSubnet?: Subnet
 }
@@ -20,6 +22,7 @@ export default class VnetVisualiserElement extends React.Component<Props, State>
     super(props);
     this.state = {
       gaps: [],
+      vnet: props.vnet,
     };
   }
 
@@ -30,37 +33,17 @@ export default class VnetVisualiserElement extends React.Component<Props, State>
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any): void {
     if (this.props.vnet.name !== prevProps.vnet.name) {
       this.calculateGaps();
-      this.setState({ currentSubnet: undefined });
+      this.setState({ currentSubnet: undefined, vnet: this.props.vnet });
     }
   }
 
   calculateGaps() {
-    const { vnet } = this.props;
-    const gaps: Subnet[] = [];
-
-    const smallestSubnet = 28;
-    let currentSubnet = vnet.network.maskbits;
-
-    while (currentSubnet <= smallestSubnet) {
-      for (let i = 0; i < 2 ** (currentSubnet - vnet.network.maskbits); i++) {
-        const startAddress = vnet.network.address.add(i * 2 ** (32 - currentSubnet));
-        const gap = new IPv4Network(startAddress.string + '/' + currentSubnet);
-        var gapVnet = new Subnet("gap", gap);
-
-        // Make sure none of the subnets overlap with the gap
-        if (vnet.subnets.every(s => !gap.overlaps(s.network) && !s.network.overlaps(gap))) {
-          gaps.push(gapVnet);
-        }
-      }
-      currentSubnet++;
-    }
-
-    this.setState({ gaps });
+    const { vnet } = this.state;
+    this.setState({ gaps: vnet.getGaps() });
   }
 
   render() {
-    const { vnet } = this.props;
-    const { currentSubnet, gaps } = this.state;
+    const { vnet, currentSubnet, gaps } = this.state;
 
     const getOffset = (vnet: Vnet, subnet: Subnet) => {
       const offset = subnet.network.startIP.numeric - vnet.network.startIP.numeric;
@@ -158,7 +141,32 @@ export default class VnetVisualiserElement extends React.Component<Props, State>
           </svg>
         ))}
       </svg >
+      <ButtonGroup className="mt-3">
+        <Button disabled={!this.hasGap(24)} onClick={() => this.addSubnet(24)}>Add /24</Button>
+        <Button disabled={!this.hasGap(25)} onClick={() => this.addSubnet(25)}>Add /25</Button>
+        <Button disabled={!this.hasGap(26)} onClick={() => this.addSubnet(26)}>Add /26</Button>
+        <Button disabled={!this.hasGap(27)} onClick={() => this.addSubnet(27)}>Add /27</Button>
+        <Button disabled={!this.hasGap(28)} onClick={() => this.addSubnet(28)}>Add /28</Button>
+      </ButtonGroup>
       {currentSubnet && <SubnetElement onClose={() => this.setState({ currentSubnet: undefined })} className="mt-3" vnet={vnet} subnet={currentSubnet} />}
     </div >
+  }
+
+  hasGap(maskbits: number): boolean {
+    const { gaps } = this.state;
+    return gaps.some(g => g.network.maskbits === maskbits);
+  }
+
+  addSubnet(maskbits: number) {
+    const { vnet } = this.state;
+
+    const gap = vnet.fitSubnet(maskbits);
+    if (gap) {
+      gap.name = "New subnet";
+      vnet.subnets.push(gap!);
+      this.setState({ vnet, currentSubnet: gap }, () => this.calculateGaps());
+    } else {
+      console.log("No gap found");
+    }
   }
 }
