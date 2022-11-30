@@ -73,6 +73,9 @@ export default class Vnet {
     })
     candidates.push(...vicinitySubnets);
     console.log('Found vicinity gaps', vicinitySubnets);
+
+    // next best fit is the rest of the subnets
+    candidates.push(...gaps);
     
     return candidates[0];
   }

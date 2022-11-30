@@ -157,12 +157,18 @@ export default class VnetVisualiserElement extends React.Component<Props, State>
     return gaps.some(g => g.network.maskbits === maskbits);
   }
 
-  addSubnet(maskbits: number) {
+  async addSubnet(maskbits: number) {
     const { vnet } = this.state;
 
     const gap = vnet.fitSubnet(maskbits);
+    
     if (gap) {
-      gap.name = "New subnet";
+      var subnetName = await prompt('Enter name for subnet', 'subnet-' + maskbits);
+      if (!subnetName) {
+        return;
+      }
+
+      gap.name = subnetName;
       vnet.subnets.push(gap!);
       this.setState({ vnet, currentSubnet: gap }, () => this.calculateGaps());
     } else {
