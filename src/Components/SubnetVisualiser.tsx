@@ -58,7 +58,7 @@ export default class SubnetVisualiser extends React.Component<Props, State> {
         }
 
         return Object.keys(vnetInformation.address_space_environment_mapping).map(environmentName => {
-          addressSpace = vnetInformation.address_space_environment_mapping.dev;
+          addressSpace = vnetInformation.address_space_environment_mapping[environmentName];
           const vnet = new Vnet(vnetInformation.vnet.name, environmentName, new IPv4Network(addressSpace));
           const subnets = this.parseSubnets(vnet, vnetInformation.subnets);
           vnet.subnets.push(...subnets);
